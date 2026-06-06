@@ -1,0 +1,4 @@
+{
+  "buildCommand": "npm install && node node_modules/.bin/react-scripts build",
+  "outputDirectory": "build"
+}
