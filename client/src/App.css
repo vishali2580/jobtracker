@@ -60,3 +60,22 @@ body { font-family: 'Segoe UI', sans-serif; background: #f4f6fb; color: #222; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .form-row { grid-template-columns: 1fr; }
 }
+/* Auth Pages */
+.auth-container { min-height: 100vh; display: flex; align-items: center;
+  justify-content: center; background: #f4f6fb; }
+.auth-box { background: #fff; border-radius: 16px; padding: 40px;
+  width: 100%; max-width: 400px; border: 1px solid #e0e0e0; }
+.auth-box h1.logo { color: #3B8BD4; font-size: 24px; margin-bottom: 8px; }
+.auth-box h2 { font-size: 20px; margin-bottom: 4px; }
+.auth-sub { color: #666; font-size: 14px; margin-bottom: 24px; }
+.auth-box input { width: 100%; padding: 12px; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
+.auth-box button { width: 100%; padding: 12px; background: #3B8BD4;
+  color: #fff; border: none; border-radius: 8px; font-size: 15px;
+  font-weight: 500; cursor: pointer; margin-top: 4px; }
+.auth-box button:hover { background: #185FA5; }
+.auth-error { background: #fef2f2; color: #E24B4A; padding: 10px 14px;
+  border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+.auth-switch { text-align: center; font-size: 13px; color: #666; margin-top: 20px; }
+.auth-switch span { color: #3B8BD4; cursor: pointer; font-weight: 500; }
+.auth-switch span:hover { text-decoration: underline; }

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllJobs, createJob, updateJob, deleteJob } from './api/jobs';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import './App.css';
 
 const STATUS_COLORS = {
@@ -12,6 +14,8 @@ const STATUS_COLORS = {
 const EMPTY_FORM = { company: '', role: '', status: 'Applied', link: '', notes: '' };
 
 export default function App() {
+  const [user, setUser]       = useState(null);
+  const [page, setPage]       = useState('login');
   const [jobs, setJobs]       = useState([]);
   const [form, setForm]       = useState(EMPTY_FORM);
   const [editId, setEditId]   = useState(null);
@@ -19,21 +23,42 @@ export default function App() {
   const [filter, setFilter]   = useState('All');
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => { fetchJobs(); }, []);
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    if (savedUser && token) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) fetchJobs();
+  }, [user]);
 
   const fetchJobs = async () => {
-    const res = await getAllJobs();
-    setJobs(res.data);
+    try {
+      const res = await getAllJobs();
+      setJobs(res.data);
+    } catch { handleLogout(); }
+  };
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setPage('dashboard');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setJobs([]);
+    setPage('login');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editId) {
-      await updateJob(editId, form);
-      setEditId(null);
-    } else {
-      await createJob(form);
-    }
+    if (editId) { await updateJob(editId, form); setEditId(null); }
+    else { await createJob(form); }
     setForm(EMPTY_FORM);
     setShowForm(false);
     fetchJobs();
@@ -46,10 +71,7 @@ export default function App() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this job?')) {
-      await deleteJob(id);
-      fetchJobs();
-    }
+    if (window.confirm('Delete this job?')) { await deleteJob(id); fetchJobs(); }
   };
 
   const filtered = jobs
@@ -59,16 +81,27 @@ export default function App() {
 
   const count = (s) => jobs.filter(j => j.status === s).length;
 
+  if (!user) {
+    return page === 'login'
+      ? <Login onLogin={handleLogin} goToRegister={() => setPage('register')} />
+      : <Register onLogin={handleLogin} goToLogin={() => setPage('login')} />;
+  }
+
   return (
     <div className="app">
       <nav className="navbar">
         <span className="logo">JobTrackr</span>
-        <button className="btn-add" onClick={() => { setShowForm(!showForm); setForm(EMPTY_FORM); setEditId(null); }}>
-          {showForm ? '✕ Cancel' : '+ Add Job'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '14px', color: '#666' }}>Hi, {user.name}! 👋</span>
+          <button className="btn-add" onClick={() => { setShowForm(!showForm); setForm(EMPTY_FORM); setEditId(null); }}>
+            {showForm ? '✕ Cancel' : '+ Add Job'}
+          </button>
+          <button onClick={handleLogout} style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer', fontSize: '14px' }}>
+            Logout
+          </button>
+        </div>
       </nav>
 
-      {/* Stats */}
       <div className="stats">
         {['Applied','Interview','Offer','Rejected'].map(s => (
           <div className="stat-card" key={s} style={{ borderTop: `3px solid ${STATUS_COLORS[s]}` }}>
@@ -78,7 +111,6 @@ export default function App() {
         ))}
       </div>
 
-      {/* Form */}
       {showForm && (
         <form className="job-form" onSubmit={handleSubmit}>
           <h2>{editId ? 'Edit Job' : 'Add New Job'}</h2>
@@ -101,7 +133,6 @@ export default function App() {
         </form>
       )}
 
-      {/* Filters & Search */}
       <div className="controls">
         <input className="search" placeholder="Search company or role..." value={search}
           onChange={e => setSearch(e.target.value)} />
@@ -114,7 +145,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Job Cards */}
       <div className="job-grid">
         {filtered.length === 0 && <p className="empty">No jobs found. Add one!</p>}
         {filtered.map(job => (
