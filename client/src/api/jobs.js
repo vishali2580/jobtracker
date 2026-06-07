@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE = 'https://jobtrackr-api-axc0.onrender.com';
+const BASE = 'https://jobtrackr-api-axc0.onrender.com/api';
 
 const getToken = () => localStorage.getItem('token');
 

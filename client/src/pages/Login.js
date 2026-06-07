@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { loginUser } from '../api/jobs';
 
-export default function Login({ onLogin, goToRegister }) {
+export default function Login({ onLogin, goToRegister, goToForgot }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const res = await loginUser(form);
       localStorage.setItem('token', res.data.token);
@@ -29,12 +28,13 @@ export default function Login({ onLogin, goToRegister }) {
         <p className="auth-sub">Login to track your applications</p>
         {error && <div className="auth-error">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <input required type="email" placeholder="Email" value={form.email}
+          <input required type="email" placeholder="Email address" value={form.email}
             onChange={e => setForm({...form, email: e.target.value})} />
           <input required type="password" placeholder="Password" value={form.password}
             onChange={e => setForm({...form, password: e.target.value})} />
+          <p className="forgot-link" onClick={goToForgot}>Forgot password?</p>
           <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Logging in...' : 'Login →'}
           </button>
         </form>
         <p className="auth-switch">
